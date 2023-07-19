@@ -1,49 +1,57 @@
-<!DOCTYPE html>
 <html>
 <head>
-    <title>Web Translator</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-o9BuI+cyCc34NnRkpxOUv4tGgTQq9lOA3Q2/5C6ihgI=" crossorigin="anonymous"></script>
+</head>
+<body>
+    <div class="card">
+        <div class="card-body">
+            <div class="mb-3">
+                <label class="form-label">Text to be translated</label>
+                <input type="textarea" class="form-control" id="textToTranslate">
+            </div>
+        
+            <div style="padding: 25px 25px 25px 25px;">
+                <button onclick="translateToFrench()" class="btn btn-secondary">Translate to French</button>        
+                <button onclick="translateToEnglish()" class="btn btn-secondary">Translate to English</button>        
+            </div>
+        
+            <div id="translated_text" style="padding: 25px 25px 25px 25px;"></div>
+        </div>
+    </div>
+
     <script>
-        function translateText() {
-            const textToTranslate = document.getElementById('textToTranslate').value;
-            const translationType = document.getElementById('translationType').value;
-            
-            fetch(`/${translationType}`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
+        function translateToFrench() {
+            const textToTranslate = document.getElementById("textToTranslate").value;
+            $.ajax({
+                url: "/englishToFrench",
+                method: "POST",
+                data: JSON.stringify({ "textToTranslate": textToTranslate }),
+                contentType: "application/json",
+                success: function(response) {
+                    document.getElementById("translated_text").innerText = response.translatedText;
                 },
-                body: JSON.stringify({ 'textToTranslate': textToTranslate })
-            })
-            .then(response => response.json())
-            .then(data => {
-                document.getElementById('translatedText').innerText = data.translatedText;
-            })
-            .catch(error => {
-                console.error('Error:', error);
+                error: function(error) {
+                    console.log(error);
+                }
+            });
+        }
+
+        function translateToEnglish() {
+            const textToTranslate = document.getElementById("textToTranslate").value;
+            $.ajax({
+                url: "/frenchToEnglish",
+                method: "POST",
+                data: JSON.stringify({ "textToTranslate": textToTranslate }),
+                contentType: "application/json",
+                success: function(response) {
+                    document.getElementById("translated_text").innerText = response.translatedText;
+                },
+                error: function(error) {
+                    console.log(error);
+                }
             });
         }
     </script>
-</head>
-<body>
-    <div class="container">
-        <h1 class="my-4">Web Translator</h1>
-        <div class="form-group">
-            <label for="textToTranslate">Text to be translated</label>
-            <textarea class="form-control" id="textToTranslate"></textarea>
-        </div>
-        <div class="form-group">
-            <label for="translationType">Translation Type:</label>
-            <select class="form-control" id="translationType">
-                <option value="englishToFrench">English to French</option>
-                <option value="frenchToEnglish">French to English</option>
-            </select>
-        </div>
-        <button class="btn btn-primary" onclick="translateText()">Translate</button>
-        <div class="mt-4">
-            <label for="translatedText">Translated Text:</label>
-            <div class="border rounded p-2" id="translatedText"></div>
-        </div>
-    </div>
 </body>
 </html>
